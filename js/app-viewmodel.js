@@ -8,6 +8,7 @@ class AppViewModel {
     this.activeTag = null;
     this.activeCategory = null;
     this.searchQuery = '';
+    this.sortOrder = 'desc'; // 'desc' = più recenti prima, 'asc' = meno recenti prima
     this.toastTimer = null;
   }
 
@@ -30,12 +31,37 @@ class AppViewModel {
 
   bindEvents() {
     const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear-btn');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.trim().toLowerCase();
+        if (clearBtn) clearBtn.style.display = this.searchQuery ? 'block' : 'none';
         this.renderList();
       });
     }
+  }
+
+  clearSearch() {
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear-btn');
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    this.searchQuery = '';
+    this.renderList();
+  }
+
+  toggleSort() {
+    this.sortOrder = this.sortOrder === 'desc' ? 'asc' : 'desc';
+    const icon = document.getElementById('sort-icon');
+    const label = document.getElementById('sort-label');
+    if (this.sortOrder === 'desc') {
+      if (icon) icon.textContent = '📅 ⬇️';
+      if (label) label.textContent = 'Recenti';
+    } else {
+      if (icon) icon.textContent = '📅 ⬆️';
+      if (label) label.textContent = 'Meno recenti';
+    }
+    this.renderList();
   }
 
   async refreshData() {
@@ -157,7 +183,15 @@ class AppViewModel {
     const container = document.getElementById('adr-list-container');
     if (!container) return;
 
-    const filtered = this.adrs.map((adr, index) => ({ adr, index })).filter(({ adr }) => {
+    const sorted = [...this.adrs].sort((a, b) => {
+      const dateA = a.meta.date || a.path;
+      const dateB = b.meta.date || b.path;
+      return this.sortOrder === 'desc'
+        ? dateB.localeCompare(dateA)
+        : dateA.localeCompare(dateB);
+    });
+
+    const filtered = sorted.filter((adr) => {
       const matchCat = !this.activeCategory || adr.meta.category === this.activeCategory;
       const matchTag = !this.activeTag || (adr.meta.tags && adr.meta.tags.includes(this.activeTag));
       const matchQuery = !this.searchQuery || 
@@ -176,11 +210,13 @@ class AppViewModel {
       return;
     }
 
-    container.innerHTML = filtered.map(({ adr, index }) => {
+    container.innerHTML = filtered.map((adr) => {
+      const originalIndex = this.adrs.indexOf(adr);
       const stats = AdrParser.getTaskStats(adr.raw);
       const isComplete = stats.total > 0 && stats.completed === stats.total;
       const badgeClass = isComplete ? 'task-badge-done' : 'task-badge-pending';
-      const renderedBody = AdrParser.renderMarkdownWithInteractiveTasks(adr.body, index);
+      const renderedBody = AdrParser.renderMarkdownWithInteractiveTasks(adr.body, originalIndex);
+      const editUrl = `https://github.com/${this.githubService.repo}/edit/main/${adr.path}`;
 
       return `
         <details class="adr-card">
@@ -203,6 +239,11 @@ class AppViewModel {
           </summary>
           <div class="adr-body">
             ${renderedBody}
+            <div class="adr-footer">
+              <a href="${editUrl}" target="_blank" rel="noopener noreferrer" class="btn-github-edit" title="Modifica questo file direttamente su GitHub">
+                ✏️ Modifica su GitHub
+              </a>
+            </div>
           </div>
         </details>
       `;

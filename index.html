@@ -10,7 +10,9 @@
   <link rel="manifest" href="manifest.json">
   <title>ADR Vault</title>
   
-  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/modal-toast.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -31,7 +33,7 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Search Bar & Sort Controls -->
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
       <input 
@@ -43,6 +45,10 @@
         autocorrect="off" 
         spellcheck="false"
       >
+      <button id="search-clear-btn" class="search-clear-btn" style="display: none;" onclick="window.appViewModel.clearSearch()" title="Cancella ricerca">✕</button>
+      <button id="sort-order-btn" class="sort-order-btn" onclick="window.appViewModel.toggleSort()" title="Inverti ordine per data">
+        <span id="sort-icon">📅 ⬇️</span> <span id="sort-label" class="sort-label-text">Recenti</span>
+      </button>
     </div>
 
     <!-- Tag & Category Filter Bar -->
