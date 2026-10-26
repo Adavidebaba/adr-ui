@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ADR Vault">
+  <link rel="manifest" href="manifest.json">
+  <title>ADR Vault</title>
+  
+  <link rel="stylesheet" href="css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- Sticky Glassmorphism Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-badge">⚡ ADR Vault</span>
+        <div class="sync-badge">
+          <div id="sync-dot" class="sync-dot"></div>
+          <span id="sync-label">Pronto</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" onclick="window.appViewModel.refreshData()" title="Ricarica decisioni">🔄</button>
+        <button class="btn-icon" onclick="window.appViewModel.openConfigModal()" title="Impostazioni GitHub">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input 
+        id="search-input" 
+        class="search-input" 
+        type="search" 
+        placeholder="Cerca per titolo, tag o testo..." 
+        autocomplete="off" 
+        autocorrect="off" 
+        spellcheck="false"
+      >
+    </div>
+
+    <!-- Tag & Category Filter Bar -->
+    <div id="filters-bar" class="filters-bar"></div>
+  </header>
+
+  <!-- Lista ADR Main Container -->
+  <main class="main-content">
+    <div id="adr-list-container">
+      <div class="empty-state">
+        <p>Caricamento decisioni in corso...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notification Feedback -->
+  <div id="app-toast" class="toast"></div>
+
+  <!-- Settings / Config Modal -->
+  <div id="config-modal" class="modal-overlay" onclick="if(event.target === this) window.appViewModel.closeConfigModal()">
+    <div class="modal-box">
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--accent-sky);">Connessione GitHub</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        I dati risiedono nel tuo repository privato e le credenziali rimangono salvate esclusivamente in locale su questo dispositivo.
+      </p>
+
+      <div class="form-group">
+        <label class="form-label">Repository (Owner/Repo)</label>
+        <input id="input-repo" class="form-input" type="text" placeholder="Adavidebaba/adr-vault">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cartella ADR</label>
+        <input id="input-path" class="form-input" type="text" placeholder="adr">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Personal Access Token (PAT)</label>
+        <input id="input-token" class="form-input" type="password" placeholder="ghp_...">
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+        <button class="btn-primary" onclick="window.appViewModel.saveConfigFromModal()">Salva e Collega</button>
+        <button class="btn-icon" style="width: auto; padding: 0 1rem; height: auto;" onclick="window.appViewModel.closeConfigModal()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/github-service.js"></script>
+  <script src="js/adr-parser.js"></script>
+  <script src="js/app-viewmodel.js"></script>
+</body>
+</html>
